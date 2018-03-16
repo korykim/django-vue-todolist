@@ -1,0 +1,124 @@
+<template>
+  <div id="todoList">
+    <h1>Todo List</h1>
+    <!-- <todo-add v-on:add="addTodo"></todo-add> -->
+      <div id="addTodo">
+    <input
+      type="text"
+      name=""
+      class="input"
+      value=""
+      v-model="todo"
+      @keyup.enter="addTodo"
+    >
+    <button
+      type="button"
+      name="button"
+      @click="addTodo"
+    >
+        添加
+    </button>
+  </div>
+  
+   
+   <ul class="todos">
+      <li v-for="todo in todos" class="todo">
+        <input
+          type="checkbox"
+          name=""
+          value=""
+          :checked="todo.isCompleted"
+          @click="completed(todo.id)"
+        >
+        <span
+          :class="todo.isCompleted ? 'completed' : ''"
+          @click="completed(todo.id)"
+        >
+          <em>{{ todo.id }}.</em>{{ todo.todo }}
+        </span>
+      </li>
+    </ul>
+    <div>
+      <p v-show="todos.length === 0">
+        恭喜！所有的事情都已完成！
+      </p>
+      <p v-show="todos.length !== 0">
+        共 <strong>{{ todos.length }}</strong> 个待办事项。{{ completedCounts }} 个已完成，{{ notCompletedCounts }} 个未完成。
+      </p>
+    </div>
+   
+ 
+  </div>
+</template>
+<script>
+// import TodoAdd from './TodoAdd.vue'
+export default {
+  name: 'TodoList',
+//   components: {
+//     TodoAdd
+//   },
+  data: () => ({
+ 
+    isCompleted:false,
+    todos: []
+  }),
+   created: function() {
+       let vueThis = this;
+ 
+
+        fetch("http://192.168.99.100:8000/todo/").then(code=>{
+            return code.json()
+            }).then(pop=>{
+               
+            vueThis.todos=eval(JSON.stringify(pop).replace(/"flag":"1"/g,'"isCompleted ":"false"').replace(/"flag":"0"/g,'"isCompleted ":"true"'))
+            console.log(eval(JSON.stringify(pop).replace(/"flag":"1"/g,'"isCompleted ":"false"').replace(/"flag":"0"/g,'"isCompleted ":"true"')))
+        
+        })
+
+
+
+   },
+  methods: {
+
+    completed (index) {
+     this.todos[index].isCompleted = !this.todos[index].isCompleted
+    },
+  addTodo (todo) {
+      this.todos.push({
+        todo: todo,
+        isCompleted: false
+      })
+    }
+  },
+ 
+  computed: {
+    completedCounts () {
+      return this.todos.filter(item => item.isCompleted).length
+    },
+    notCompletedCounts () {
+      return this.todos.filter(item => !item.isCompleted).length
+    }
+  }
+}
+</script>
+<style scoped>
+#todoList {
+  margin: 0 auto;
+  max-width: 350px;
+}
+.todos li {
+  list-style: none;
+}
+.todo {
+  text-align: left;
+  cursor: pointer;
+}
+.completed {
+  text-decoration: line-through;
+}
+.input {
+  min-width: 200px;
+}
+</style>
+
+ 
